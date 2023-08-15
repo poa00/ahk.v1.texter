@@ -7,11 +7,11 @@ Menu, BundlesMenu, Add, &Import, Import
 Menu, BundlesMenu, Add, &Add, AddBundle
 Menu, BundlesMenu, Add, &Remove, DeleteBundle
 Menu, MgmtMenuBar, Add, &Bundles, :BundlesMenu
-Menu, HelpMenu, Add, &Basic Use, BasicUse
-Menu, HelpMenu, Add, Ad&vanced Use, Scripting
-Menu, HelpMenu, Add, &Homepage, Homepage
-Menu, HelpMenu, Add, &About..., About
-Menu, MgmtMenuBar, Add, &Help, :HelpMenu
+;Menu, HelpMenu, Add, &Basic Use, BasicUse
+;Menu, HelpMenu, Add, Ad&vanced Use, Scripting
+;Menu, HelpMenu, Add, &Homepage, Homepage
+;Menu, HelpMenu, Add, &About..., About
+;Menu, MgmtMenuBar, Add, &Help, :HelpMenu
 Gui,2: Menu, MgmtMenuBar
 return
 

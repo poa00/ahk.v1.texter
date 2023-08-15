@@ -1,12 +1,3 @@
-; Texter
-; Author:         Adam Pash <adam@lifehacker.com>
-; Gratefully adapted several ideas from AutoClip by Skrommel:
-;		http://www.donationcoder.com/Software/Skrommel/index.html#AutoClip
-; Huge thanks to Dustin Luck for his contributions
-; Script Function:
-;	Designed to implement simple, on-the-fly creation and managment 
-;	of auto-replacing hotstrings for repetitive text
-;	http://lifehacker.com/software//lifehacker-code-texter-windows-238306.php
 SetWorkingDir %A_ScriptDir%
 #SingleInstance,Force 
 #NoEnv
@@ -14,29 +5,18 @@ StringCaseSense On
 AutoTrim,off
 SetKeyDelay,-1
 SetWinDelay,0 
-;Gosub,UpdateCheck
+
 Gosub,ASSIGNVARS
 Gosub,RESOURCES
 Gosub,READINI
-;EnableTriggers(true)
 Gosub,TRAYMENU
 Gosub,BuildActive
-
-; Autocorrect and autoclose not yet fully implemented
-;if AutoCorrect = 1
-;	Gosub,AUTOCORRECT
-;if AutoClose = 1
-;	Gosub,AUTOCLOSE
 
 FileRead, EnterKeys, %EnterCSV%
 FileRead, TabKeys, %TabCSV%
 FileRead, SpaceKeys, %SpaceCSV%
 FileRead, NoTrigKeys, %NoTrigCSV%
-FileRead, AutocorrectKeys, %AutocorrectCSV%
-;Gosub,GetFileList
-;Goto Start
-; WinGet PrevWinID, ID, A
-; SetTimer, MonitorWindows, 500
+
 Starting=1
 Loop
 {
@@ -71,43 +51,8 @@ Loop
 	  }			; end of inside loop
   }
   PossHexMatch := Hexify(PossibleMatch)
-  ;PHMPipe = |%PossHexMatch%|
-  if AutoCorrect = 1
-  {
-	  IfInString, AutocorrectKeys, |%PossibleMatch%|
-	  {
-		AutoMatch = 1
-	  }
-	  else
-	  {
-		AutoMatch=
-	  }
-  }
-  if (Autocorrect = 1 and AutoMatch = 1)
-  {
-		;msgbox %autocorrectkeys% 
-	  ;if PossHexMatch in %AutocorrectKeys%
-	  ;{ ;matched in triggerless list	
-		ReadFrom = %A_ScriptDir%\Active\Autocorrect\replacements
-	    Match := Hexify(PossibleMatch)
-		;msgbox %match%
-		if GetKeyState("Shift", "P") ; the following loop prevents the shift key from being stuck, which happens if it's released while the execute thread is in progress
-		{
-			Loop
-			{
-				if GetKeyState("Shift", "P")
-				{
-					continue
-				}
-				else
-				{
-					break
-				}
-			}
-		}
-	  ;}
-	}
-  else if PossHexMatch in %NoTrigKeys%
+  
+  if PossHexMatch in %NoTrigKeys%
   {
     Match := PossHexMatch
 	ReadFrom = %A_ScriptDir%\Active\replacements
@@ -130,8 +75,6 @@ Loop
   { ;get a single character of input to look for triggers
     Transform, CtrlC, Chr, 3  ; used for the Ctrl-C check
     Input, UserInput, L1 M, %EndKeys%
-		;Tooltip, ErrorLevel= %ErrorLevel%, 10, 10
-	;msgbox %userinput%
       AltState := GetKeyState("Alt", "P")
       CtrlState := GetKeyState("Ctrl", "P")
       ShiftState := GetKeyState("Shift", "P")
@@ -262,14 +205,6 @@ Loop
 		;msgbox boom hi there
 		continue
 	  }
-;	  else if (Modifier <> && !ShiftState) ;is this even doing anything anymore?
-;	  {
-;		SendInput,%Modifier%%UserInput%
-;		msgbox sending
-;		PossibleMatch=
-;		Starting=1
-;		continue
-;	   }
 		;msgbox sending %userinput%
 	    PossibleMatch=%PossibleMatch%%UserInput%
 		;Tooltip, PossibleMatch= %PossibleMatch%
@@ -282,19 +217,12 @@ Loop
 }
 return
 
-;~$BS::StringTrimRight, PossibleMatch, PossibleMatch, 1
-
 
 EXECUTE:
 WinGetActiveTitle,thisWindow ; this variable ensures that the active Window is receiving the text, activated before send
 ;; below added b/c SendMode Play appears not to be supported in Vista 
 ;EnableTriggers(false)
-if (A_OSVersion = "WIN_VISTA") or (Synergy = 1)
-	SendMode Input
-else
-	SendMode Play   ; Set an option in Preferences to enable for use with Synergy - Use SendMode Input to work with Synergy
-if (ExSound = 1)
-	SoundPlay, %ReplaceWAV%
+SendMode Input
 ReturnTo := 0
 hexInput:=Dehexify(Match)
 StringLen,BSlength,hexInput
@@ -318,8 +246,8 @@ IfInString,ReplacementText,::scr::
 	}
 	IfInString,ReplacementText,`%s
 	{
-		StringReplace, ReplacementText, ReplacementText,`%s(, ¢, All
-		Loop,Parse,ReplacementText,¢
+		StringReplace, ReplacementText, ReplacementText,`%s(, Â¢, All
+		Loop,Parse,ReplacementText,Â¢
 		{
 			if (A_Index != 1)
 			{
@@ -434,8 +362,6 @@ else
 		}
 		Clipboard = %oldClip%
 	}
-;	if ReturnTo > 0
-;		Send, {Left %ReturnTo%}
 
 }
 SendMode Event
@@ -456,14 +382,11 @@ Send,{SC77}
 Return 
 
 ASSIGNVARS:
-Version = 0.6
+Version = 0.1
 EnterCSV = %A_ScriptDir%\Active\bank\enter.csv
 TabCSV = %A_ScriptDir%\Active\bank\tab.csv
 SpaceCSV = %A_ScriptDir%\Active\bank\space.csv
 NoTrigCSV = %A_ScriptDir%\Active\bank\notrig.csv
-AutocorrectCSV = %A_ScriptDir%\Active\Autocorrect\pipelist.txt
-ReplaceWAV = %A_ScriptDir%\resources\replace.wav
-TexterPNG = %A_ScriptDir%\resources\texter.png
 TexterICO = %A_ScriptDir%\resources\texter.ico
 StyleCSS = %A_ScriptDir%\resources\style.css
 Throbber =  %A_ScriptDir%\resources\throbber.gif
@@ -479,24 +402,17 @@ cancel := GetValFromIni("Cancel","Keys","{Escape}") ;keys to stop completion, re
 ignore := GetValFromIni("Ignore","Keys","{Tab}`,{Enter}`,{Space}") ;keys not to send after completion 
 IniWrite,{Escape}`,{Tab}`,{Enter}`,{Space}`,{Left}`,{Right}`,{Up}`,{Down},texter.ini,Autocomplete,Keys
 keys := GetValFromIni("Autocomplete","Keys","{Escape}`,{Tab}`,{Enter}`,{Space}`,{Left}`,{Right}`,{Esc}`,{Up}`,{Down}")
-otfhotkey := GetValFromIni("Hotkey","OntheFly","^+H")
-managehotkey := GetValFromIni("Hotkey","Management","^+M")
-disablehotkey := GetValFromIni("Hotkey", "Disable","")
-MODE := GetValFromIni("Settings","Mode",0)
 EnterBox := GetValFromIni("Triggers","Enter",0)
 TabBox := GetValFromIni("Triggers","Tab",0)
 SpaceBox := GetValFromIni("Triggers","Space",0)
-ExSound := GetValFromIni("Preferences","ExSound",1)
-Synergy := GetValFromIni("Preferences","Synergy",0)
-Autocorrect := GetValFromIni("Preferences","AutoCorrect",1)
 Default := GetValFromIni("Bundles","Default",1)
-OnStartup := GetValFromIni(Settings, Startup, 0)
+
 
 
 
 
 ;; Enable hotkeys for creating new keys and managing replacements
-if otfhotkey <>
+ if otfhotkey <>
 {
 	Hotkey,IfWinNotActive,Texter Preferences
 	Hotkey,%otfhotkey%,NEWKEY	
@@ -514,26 +430,16 @@ if disablehotkey <>
 	Hotkey,IfWinNotActive,Texter Preferences
 	Hotkey,%disablehotkey%,DISABLE
 	Hotkey,IfWinActive
-}
+} 
 
 ~LButton::PossibleMatch=
 ~RButton::PossibleMatch=
 ~MButton::PossibleMatch=
 
-; GUI
-#Include includes\GUI\newkey_GUI.ahk     		 	; the GUI for new on-the-fly hotstring creation
-#Include includes\GUI\traymenu_GUI.ahk 		  	; Builds the right-click system tray menu
-#Include includes\GUI\about_GUI.ahk       		  	; About Texter GUI window
-#Include includes\GUI\help_GUI.ahk          		 	; Help dialog/window
-#Include includes\GUI\preferences_GUI.ahk			; Preferences GUI and accept/cancel threads
-#Include includes\GUI\management_GUI.ahk		; Implementation of the hotstring management GUI
-#Include includes\GUI\textprompt_GUI.ahk			; GUI that prompts for text when %p operator is included
-#Include includes\GUI\disablechecks.ahk			; Keeps instant exclusive from tab, enter, and space keys (greys out others)
 
 
 ; Functions
 #Include includes\functions\disable.ahk  				; Disable/enable Texter... need to check if this is still in use (not sure it is)
-#Include includes\functions\urls.ahk       				; Links to Texter homepage and usage instructions
 #Include includes\functions\getfilelist.ahk				; Loops the main %A_ScriptDir%\replacements\*.txt dir and gathers the list of replacements 
 #Include includes\functions\buildactive.ahk			; Loops the enabled bundles and builds the active set of replacements in Active\replacements\ and Active\replacements
 #Include includes\functions\bundles.ahk				; Implementation for working with bundles in the management GUI
@@ -544,16 +450,20 @@ if disablehotkey <>
 #Include includes\functions\enabletriggers.ahk		; method for enabling/disabling Texter
 #Include includes\functions\resources.ahk			; Installs file resources like images and sounds
 #Include includes\functions\printablelist.ahk			; Builds Texter Replacement Guide HTML file 
-#Include includes\functions\updatecheck.ahk		; If enabled, checks for updates to Texter on startup
-; #Include includes\functions\hexall.ahk					; Converts pre-0.5 version of Texter to the new hexified replacement format... may remove in future versions
 #Include includes\functions\hexify.ahk					; Translates back and forth between hex values for replacements
 #Include includes\functions\InsSpecKeys.ahk		; Insert special characters in Texter script mode by pressing insert and then the special key
 #Include includes\functions\MonitorWindows.ahk 	; monitors active window and clears input when window switches
 #include includes\functions\renameHotstring.ahk	; rename hotstrings in the Texter Management GUI via the right-click context menu
-#include includes\functions\InstallAutocorrect.ahk	; sets up autocorrect folder when Texter is first run
 
-;#Include includes\functions\autocorrect.ahk			; Spelling autocorrect--may implement in 0.6
-; #Include includes\functions\autoclose.ahk			; Automatically closes bracketed puntuation, like parentheticals - not currently implemented
+; GUI
+#Include includes\GUI\newkey_GUI.ahk     		 	; the GUI for new on-the-fly hotstring creation
+#Include includes\GUI\traymenu_GUI.ahk 		  	; Builds the right-click system tray menu
+#Include includes\GUI\about_GUI.ahk       		  	; About Texter GUI window
+#Include includes\GUI\help_GUI.ahk          		 	; Help dialog/window
+#Include includes\GUI\preferences_GUI.ahk			; Preferences GUI and accept/cancel threads
+#Include includes\GUI\management_GUI.ahk		; Implementation of the hotstring management GUI
+#Include includes\GUI\textprompt_GUI.ahk			; GUI that prompts for text when %p operator is included
+#Include includes\GUI\disablechecks.ahk			; Keeps instant exclusive from tab, enter, and space keys (greys out others)
 
 EXIT: 
 ExitApp 

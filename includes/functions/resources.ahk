@@ -25,9 +25,9 @@ IfNotExist Active\Autocorrect
 {
 	FileCreateDir, Active\Autocorrect
 	FileCreateDir, Active\Autocorrect\replacements
-	FileInstall,resources\autocorrect.txt,resources\autocorrect.txt,1
+	;FileInstall,resources\autocorrect.txt,resources\autocorrect.txt,1
 	;FileInstall,Active\Autocorrect\pipelist.txt,Active\Autocorrect\pipelist.txt,1
 	;FileInstall,Active\Autocorrect\autocorrect.csv,Active\Autocorrect\autocorrect.csv,1
-	Gosub,InstallAutocorrect
+	;Gosub,InstallAutocorrect
 }
 return

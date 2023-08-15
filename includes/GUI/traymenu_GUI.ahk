@@ -15,5 +15,5 @@ if disable = 1
 Menu,TRAY,Add,E&xit,EXIT
 Menu,TRAY,Default,&Manage hotstrings
 Menu,Tray,Tip,Texter
-Menu,TRAY,Icon,resources\texter.ico
+;Menu,TRAY,Icon,resources\texter.ico
 Return

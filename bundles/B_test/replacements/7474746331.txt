@@ -1,0 +1,3 @@
+Técnica multislice. Colimação: 3,0 mm. 
+Meios de contraste: Iodado não iônico.
+Fases: Sem contraste, arterial, portal e equilibrio hepático.
